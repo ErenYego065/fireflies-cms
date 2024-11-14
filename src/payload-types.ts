@@ -18,8 +18,12 @@ export interface Config {
     submissions: Submission;
     transactions: Transaction;
     rewardsHistory: RewardsHistory;
-    "payload-preferences": PayloadPreference;
-    "payload-migrations": PayloadMigration;
+    raffles: Raffle;
+    tickets: Ticket;
+    winners: Winner;
+    'raffle-dashhboard': RaffleDashhboard;
+    'payload-preferences': PayloadPreference;
+    'payload-migrations': PayloadMigration;
   };
   globals: {};
 }
@@ -30,10 +34,10 @@ export interface Config {
 export interface User {
   id: string;
   image?: string | Media | null;
-  role?: ("admin" | "user") | null;
+  role?: ('admin' | 'user') | null;
   name: string;
   provider?: string | null;
-  status: "active" | "inactive" | "banned" | "blocked";
+  status: 'active' | 'inactive' | 'banned' | 'blocked';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -106,7 +110,7 @@ export interface Blog {
   user: string | User;
   cover_image?: string | Media | null;
   published_at: string;
-  status: "pending" | "published" | "rejected";
+  status: 'pending' | 'published' | 'rejected';
   tags?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -161,14 +165,7 @@ export interface Article {
   title: string;
   excerpt?: string | null;
   topic?:
-    | (
-        | "getting-started"
-        | "travel-and-pay"
-        | "earn-rewards"
-        | "managing-your-crypto"
-        | "stay-secure"
-        | "get-support"
-      )
+    | ('getting-started' | 'travel-and-pay' | 'earn-rewards' | 'managing-your-crypto' | 'stay-secure' | 'get-support')
     | null;
   tags?: string | null;
   content: {
@@ -190,17 +187,17 @@ export interface Submission {
   name: string;
   email: string;
   topic:
-    | "account-issues"
-    | "wallet-connection"
-    | "transaction-problems"
-    | "booking-issues"
-    | "rewards-and-staking"
-    | "nft-and-exclusive-offers"
-    | "security-concerns"
-    | "technical-glitches"
-    | "platform-navigation"
-    | "other";
-  priority: "low" | "medium" | "high" | "critical";
+    | 'account-issues'
+    | 'wallet-connection'
+    | 'transaction-problems'
+    | 'booking-issues'
+    | 'rewards-and-staking'
+    | 'nft-and-exclusive-offers'
+    | 'security-concerns'
+    | 'technical-glitches'
+    | 'platform-navigation'
+    | 'other';
+  priority: 'low' | 'medium' | 'high' | 'critical';
   description: string;
   created_at: string;
   updatedAt: string;
@@ -216,12 +213,12 @@ export interface Transaction {
   billingUserAddress: string;
   billingUserName: string;
   amount: number;
-  currency: "USDC" | "USDT";
+  currency: 'USDC' | 'USDT';
   item: string;
   usdt: number;
   fft: number;
   comments: string;
-  status?: ("Pending" | "Completed") | null;
+  status?: ('Pending' | 'Completed') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -239,12 +236,79 @@ export interface RewardsHistory {
   user: string | User;
   billingUserName: string;
   amount: number;
-  currency: "USDC" | "USDT";
+  currency: 'USDC' | 'USDT';
   item: string;
   usdt: number;
   fft: number;
   comments: string;
-  status?: ("Pending" | "Completed") | null;
+  status?: ('Pending' | 'Completed') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "raffles".
+ */
+export interface Raffle {
+  id: string;
+  title: string;
+  description: string;
+  reference_id?: string | null;
+  contract_address?: string | null;
+  tx_hash?: string | null;
+  image?: string | Media | null;
+  start_time: string;
+  end_time: string;
+  category: 'Global Explorer' | 'Dream Vacation Luxury' | 'Car Rental';
+  currency_token: 'FFT' | 'USDT' | 'USDC';
+  price: number;
+  total_tickets: number;
+  is_wallet_cap: boolean;
+  wallet_cap: number;
+  is_min_tickets_needed: boolean;
+  min_tickets_to_draw: number;
+  draw_on_last_ticket: boolean;
+  status: 'DRAFT' | 'PENDING' | 'ACTIVE' | 'DRAWN';
+  tickets?: (string | Ticket)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tickets".
+ */
+export interface Ticket {
+  id: string;
+  raffle?: (string | null) | Raffle;
+  wallet_address?: string | null;
+  tx_hash?: string | null;
+  ticket_number: number;
+  purchased_at: string;
+  status: 'PENDING' | 'CONFIRMED' | 'FAILED';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "winners".
+ */
+export interface Winner {
+  id: string;
+  raffle?: (string | null) | Raffle;
+  wallet_address?: string | null;
+  tx_hash?: string | null;
+  prize_amount: number;
+  drawn_at: string;
+  status: 'PENDING' | 'PAID' | 'FAILED';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "raffle-dashhboard".
+ */
+export interface RaffleDashhboard {
+  id: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -255,7 +319,7 @@ export interface RewardsHistory {
 export interface PayloadPreference {
   id: string;
   user: {
-    relationTo: "users";
+    relationTo: 'users';
     value: string | User;
   };
   key?: string | null;
@@ -283,6 +347,7 @@ export interface PayloadMigration {
   createdAt: string;
 }
 
-declare module "payload" {
+
+declare module 'payload' {
   export interface GeneratedTypes extends Config {}
 }

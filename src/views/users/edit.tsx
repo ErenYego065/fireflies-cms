@@ -3,19 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { AdminViewProps } from "payload/config";
 import { format } from "date-fns";
-import { DialogConfirm } from "../../../src/components/dialog-confirm";
+//import { DialogConfirm } from "../../../src/components/dialog-confirm";
 
 export const UserPreview = (props: AdminViewProps | any) => {
   const [media, setMedia] = useState<any>(null);
   const { data } = props;
-
-  if (!data) {
-    return (
-      // <DefaultTemplate>
-      <div>Loading...</div>
-      // </DefaultTemplate>
-    );
-  }
 
   useEffect(() => {
     fetch("/api/media/" + data.image)
@@ -36,10 +28,10 @@ export const UserPreview = (props: AdminViewProps | any) => {
           </div>
           <div className="flex flex-col gap-2 bg-secondary p-4">
             <h1 className="text-2xl font-bold">Action</h1>
-            <DialogConfirm
-              triggerRef={<div>Reset Password</div>}
-              message="Are you sure you want to reset this user's password?"
-            />
+            {/* <DialogConfirm */}
+            {/*   triggerRef={<div>Reset Password</div>} */}
+            {/*   message="Are you sure you want to reset this user's password?" */}
+            {/* /> */}
             <button>Ban Account</button>
             <button>Block Account</button>
             <button>Delete Account</button>

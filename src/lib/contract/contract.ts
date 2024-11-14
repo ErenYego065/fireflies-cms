@@ -31,36 +31,35 @@ wcontract.on("ServiceFeeUpdated", (e, a) => {
   console.log("service fee updated:", e);
 });
 
-/**
- * Sample function to Create a new raffle
- */
-export async function createRaffle() {
-  const referenceId = "raffle_123";
-  const totalTickets = 1000;
-  const ticketPrice = ethers.parseUnits("0.1", 18); // Adjust decimals as needed
-  const currencyToken = "0x6ce8da28e2f864420840cf74474eff5fd80e65b8"; // Address of the token (or 0x0 if ETH)
-  const startTime = Math.floor(Date.now() / 1000) + 3600; // Start time (current time + 1 hour)
-  const endTime = startTime + 86400; // End time (start time + 24 hours)
-  const isWalletCap = true;
-  const walletCap = 5; // Maximum tickets per wallet
-  const isMinTicketsNeededToDraw = true;
-  const minTicketsToDraw = 500; // Minimum tickets needed for drawing
-  const drawOnLastTicket = false;
+type Raffle = {
+  referenceId: string;
+  totalTickets: number;
+  ticketPrice: string;
+  currencyToken: string;
+  startTime: number;
+  endTime: number;
+  isWalletCap: boolean;
+  walletCap: number;
+  isMinTicketsNeededToDraw: boolean;
+  minTicketsToDraw: number;
+  drawOnLastTicket: boolean;
+};
 
+export async function createRaffle(raffle: Raffle) {
   try {
     // Call createRaffle function
     const tx = await contract.createRaffle(
-      referenceId,
-      totalTickets,
-      ticketPrice,
-      currencyToken,
-      startTime,
-      endTime,
-      isWalletCap,
-      walletCap,
-      isMinTicketsNeededToDraw,
-      minTicketsToDraw,
-      drawOnLastTicket,
+      raffle.referenceId,
+      raffle.totalTickets,
+      ethers.parseUnits(raffle.ticketPrice, 18),
+      raffle.currencyToken,
+      raffle.startTime,
+      raffle.endTime,
+      raffle.isWalletCap,
+      raffle.walletCap,
+      raffle.isMinTicketsNeededToDraw,
+      raffle.minTicketsToDraw,
+      raffle.drawOnLastTicket,
     );
 
     // Wait for the transaction to be mined

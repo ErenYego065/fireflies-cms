@@ -18,6 +18,8 @@ import { RewardsHistory } from "./collections/RewardsHistory";
 import { UserPreview } from "./views/users/edit";
 import { Raffles } from "./collections/Raffles";
 import { RaffleDashboard } from "./collections/RaffleDashboard";
+import { Tickets } from "./collections/Tickets";
+import { Winners } from "./collections/Winners";
 
 export default buildConfig({
   admin: {
@@ -62,6 +64,8 @@ export default buildConfig({
     Transactions,
     RewardsHistory,
     Raffles,
+    Tickets,
+    Winners,
     RaffleDashboard,
   ],
   typescript: {
