@@ -1,64 +1,10 @@
-import { ethers } from "ethers";
-import payload from "payload";
-import { Raffle } from "payload/generated-types";
 import { CollectionConfig } from "payload/types";
+import { submitRaffleToContract } from "./operations/raffle";
 
 export const Raffles: CollectionConfig = {
   slug: "raffles",
   hooks: {
-    afterOperation: [
-      async ({ operation, result }) => {
-        if (operation === "create") {
-          const createdRaffle = result as Raffle;
-
-          // Create raffle object for contract
-          const raffle = {
-            referenceId: createdRaffle.id,
-            totalTickets: createdRaffle.total_tickets,
-            ticketPrice: ethers
-              .parseUnits(createdRaffle.price.toString(), 18)
-              .toString(),
-            currencyToken: "0x6ce8da28e2f864420840cf74474eff5fd80e65b8",
-            startTime: Math.floor(
-              new Date(createdRaffle.start_time).getTime() / 1000,
-            ),
-            endTime: Math.floor(
-              new Date(createdRaffle.end_time).getTime() / 1000,
-            ),
-            isWalletCap: createdRaffle.is_wallet_cap,
-            walletCap: createdRaffle.wallet_cap,
-            isMinTicketsNeededToDraw: createdRaffle.is_min_tickets_needed,
-            minTicketsToDraw: createdRaffle.min_tickets_to_draw,
-            drawOnLastTicket: createdRaffle.draw_on_last_ticket,
-          };
-
-          // Create raffle contract
-          const contractResponse = await fetch(
-            "http://localhost:3002/create-raffle-contract",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ raffle }),
-            },
-          );
-
-          const response = await contractResponse.json();
-
-          // Update tx_hash from the contract response
-          await payload.update({
-            collection: "raffles",
-            id: createdRaffle.id,
-            data: {
-              tx_hash: response.hash,
-            },
-          });
-        }
-
-        return result;
-      },
-    ],
+    afterOperation: [submitRaffleToContract],
   },
   access: {
     read: () => true,
@@ -84,16 +30,25 @@ export const Raffles: CollectionConfig = {
       name: "reference_id",
       type: "text",
       label: "Contract Reference",
+      defaultValue: "0x0C97A4D639dB8B3772A33c1C5C17e7C53DF6c220",
+      hidden: true,
     },
     {
       name: "contract_address",
       type: "text",
       label: "Contract Address",
+      defaultValue: "0x0C97A4D639dB8B3772A33c1C5C17e7C53DF6c220",
+      admin: {
+        readOnly: true,
+      },
     },
     {
       name: "tx_hash",
       type: "text",
       label: "Transaction Hash",
+      admin: {
+        readOnly: true,
+      },
     },
     {
       name: "image",
@@ -106,9 +61,40 @@ export const Raffles: CollectionConfig = {
       },
     },
     {
+      name: "slider", // required
+      type: "array", // required
+      label: "Image Slider",
+      minRows: 0,
+      maxRows: 10,
+      labels: {
+        singular: "Image",
+        plural: "Images",
+      },
+      fields: [
+        {
+          name: "sliderImage", // required
+          type: "upload", // required
+          relationTo: "media", // required
+          required: true,
+        },
+      ],
+      admin: {
+        components: {
+          RowLabel: ({ data, index }: any) => {
+            return data?.title || `Image ${String(index).padStart(2, "0")}`;
+          },
+        },
+      },
+    },
+    {
       name: "start_time",
       type: "date",
       label: "Start Date",
+      admin: {
+        date: {
+          pickerAppearance: "dayAndTime",
+        },
+      },
       required: true,
     },
     {
@@ -116,6 +102,16 @@ export const Raffles: CollectionConfig = {
       type: "date",
       label: "End Date",
       required: true,
+      admin: {
+        date: {
+          pickerAppearance: "dayAndTime",
+        },
+      },
+      validate: (value, allValues) => {
+        if (value <= allValues.start_time) {
+          return "End time must be after start time";
+        }
+      },
     },
     {
       name: "category",
@@ -136,12 +132,22 @@ export const Raffles: CollectionConfig = {
       type: "number",
       label: "Price",
       required: true,
+      validate: (value) => {
+        if (value <= 0) {
+          return "Price must be greater than 0";
+        }
+      },
     },
     {
       name: "total_tickets",
       type: "number",
       label: "Total Tickets",
       required: true,
+      validate: (value) => {
+        if (value <= 0) {
+          return "Total tickets must be greater than 0";
+        }
+      },
     },
     {
       name: "is_wallet_cap",
@@ -155,6 +161,14 @@ export const Raffles: CollectionConfig = {
       type: "number",
       label: "Wallet Cap",
       required: true,
+      admin: {
+        condition: (data) => data.is_wallet_cap,
+      },
+      validate: (value) => {
+        if (value <= 0) {
+          return "Wallet cap must be greater than 0";
+        }
+      },
     },
     {
       name: "is_min_tickets_needed",
@@ -167,6 +181,14 @@ export const Raffles: CollectionConfig = {
       name: "min_tickets_to_draw",
       type: "number",
       label: "Min Revenue Threshold",
+      admin: {
+        condition: (data) => data.is_min_tickets_needed,
+      },
+      validate: (value) => {
+        if (value <= 0) {
+          return "Minimum must be greater than 0";
+        }
+      },
       required: true,
     },
     {
@@ -181,7 +203,10 @@ export const Raffles: CollectionConfig = {
       type: "radio",
       options: ["DRAFT", "PENDING", "ACTIVE", "DRAWN"],
       required: true,
-      defaultValue: "DRAFT",
+      defaultValue: "PENDING",
+      admin: {
+        readOnly: true,
+      },
     },
     {
       name: "tickets",

@@ -51,7 +51,7 @@ export default buildConfig({
   },
   editor: slateEditor({}),
   cors: "*",
-  csrf: ["http://localhost:3002", "*"],
+  csrf: ["http://localhost:3002", "https://cms-admin.firefliestoken.com"],
   collections: [
     Users,
     Blogs,

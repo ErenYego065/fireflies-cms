@@ -20,10 +20,21 @@ export const Tickets: CollectionConfig = {
       name: "wallet_address",
       type: "text",
       label: "Buyer Address",
+      admin: {
+        readOnly: true,
+      },
+      validate: (value) => {
+        if (!/^0x[a-fA-F0-9]{40}$/.test(value)) {
+          return "Please enter a valid wallet address";
+        }
+      },
     },
     {
       name: "tx_hash",
       type: "text",
+      admin: {
+        readOnly: true,
+      },
       label: "Transaction Hash",
     },
     {
@@ -42,6 +53,9 @@ export const Tickets: CollectionConfig = {
       name: "status",
       type: "radio",
       options: ["PENDING", "CONFIRMED", "FAILED"],
+      admin: {
+        readOnly: true,
+      },
       required: true,
       defaultValue: "PENDING",
     },

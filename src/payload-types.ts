@@ -257,6 +257,12 @@ export interface Raffle {
   contract_address?: string | null;
   tx_hash?: string | null;
   image?: string | Media | null;
+  slider?:
+    | {
+        sliderImage: string | Media;
+        id?: string | null;
+      }[]
+    | null;
   start_time: string;
   end_time: string;
   category: 'Global Explorer' | 'Dream Vacation Luxury' | 'Car Rental';
@@ -264,9 +270,9 @@ export interface Raffle {
   price: number;
   total_tickets: number;
   is_wallet_cap: boolean;
-  wallet_cap: number;
+  wallet_cap?: number | null;
   is_min_tickets_needed: boolean;
-  min_tickets_to_draw: number;
+  min_tickets_to_draw?: number | null;
   draw_on_last_ticket: boolean;
   status: 'DRAFT' | 'PENDING' | 'ACTIVE' | 'DRAWN';
   tickets?: (string | Ticket)[] | null;
